@@ -1,4 +1,7 @@
 import './tailwind.css'
+import { ClerkApp, ClerkErrorBoundary } from '@clerk/remix'
+import { rootAuthLoader } from '@clerk/remix/ssr.server'
+import { type LoaderFunctionArgs } from '@remix-run/node'
 import {
   Links,
   LiveReload,
@@ -8,7 +11,17 @@ import {
   ScrollRestoration,
 } from '@remix-run/react'
 
-export default function App() {
+export async function loader(args: LoaderFunctionArgs) {
+  return rootAuthLoader(args, ({ request }) => {
+    const { userId } = request.auth
+
+    return { userId }
+  })
+}
+
+export const ErrorBoundary = ClerkErrorBoundary()
+
+function App() {
   return (
     <html lang="en">
       <head>
@@ -26,3 +39,5 @@ export default function App() {
     </html>
   )
 }
+
+export default ClerkApp(App)
